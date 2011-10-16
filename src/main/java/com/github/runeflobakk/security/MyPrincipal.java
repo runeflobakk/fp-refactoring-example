@@ -11,7 +11,7 @@ public class MyPrincipal extends User {
         super(username, password, true, true, true, true, authorities);
     }
 
-    public String getTilgangsniva() {
+    public String getSecurityLevel() {
         throw new UnsupportedOperationException();
     }
 

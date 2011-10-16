@@ -10,17 +10,8 @@ import com.github.runeflobakk.security.MyPrincipal;
 
 
 public class SecurityLevelVoter implements AccessDecisionVoter {
+
     private String securityLevelPrefix = "SECURITY_LEVEL_";
-
-    @Override
-    public boolean supports(ConfigAttribute attribute) {
-        return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getSecurityLevelPrefix());
-    }
-
-    @Override
-    public boolean supports(Class<?> clazz) {
-        return true;
-    }
 
     @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
@@ -53,12 +44,22 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
     }
 
     private int getUserSecurityLevel(Object principal) {
-        String securityLevelString = ((MyPrincipal) principal).getTilgangsniva();
+        String securityLevelString = ((MyPrincipal) principal).getSecurityLevel();
         try {
             return Integer.parseInt(securityLevelString);
         } catch (NumberFormatException e) {
             return Integer.MIN_VALUE;
         }
+    }
+
+    @Override
+    public boolean supports(ConfigAttribute attribute) {
+        return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getSecurityLevelPrefix());
+    }
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+        return true;
     }
 
     public String getSecurityLevelPrefix() {

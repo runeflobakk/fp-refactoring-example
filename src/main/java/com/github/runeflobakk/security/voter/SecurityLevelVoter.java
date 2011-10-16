@@ -38,16 +38,6 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
     private String securityLevelPrefix = "SECURITY_LEVEL_";
 
     @Override
-    public boolean supports(ConfigAttribute attribute) {
-        return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getSecurityLevelPrefix());
-    }
-
-    @Override
-    public boolean supports(Class<?> clazz) {
-        return true;
-    }
-
-    @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 
         Collection<ConfigAttribute> supportedAttributes = select(attributes, new SupportedBy(this));
@@ -61,7 +51,6 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
         } else {
             return ACCESS_DENIED;
         }
-
     }
 
     private Predicate<ConfigAttribute> acceptingSecurityLevelOf(MyPrincipal navPrincipal) {
@@ -73,7 +62,7 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
         private final int principalSecurityLevel;
 
         public AcceptingSecurityLevelOf(MyPrincipal principal) {
-            String securityLevelString = principal.getTilgangsniva();
+            String securityLevelString = principal.getSecurityLevel();
             if (isNumeric(securityLevelString)) {
                 principalSecurityLevel = Integer.parseInt(securityLevelString);
             } else {
@@ -97,6 +86,15 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
         }
     }
 
+    @Override
+    public boolean supports(ConfigAttribute attribute) {
+        return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getSecurityLevelPrefix());
+    }
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+        return true;
+    }
 
     public String getSecurityLevelPrefix() {
         return securityLevelPrefix;
