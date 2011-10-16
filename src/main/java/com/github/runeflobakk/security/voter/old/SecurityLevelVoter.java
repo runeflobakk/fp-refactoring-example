@@ -1,5 +1,8 @@
 package com.github.runeflobakk.security.voter.old;
 
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.math.NumberUtils.toInt;
+
 import java.util.Collection;
 
 import org.springframework.security.access.AccessDecisionVoter;
@@ -24,7 +27,7 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
                 if (principal instanceof MyPrincipal) {
                     int requiredSecurityLevel = getRequiredSecurityLevel(attribute);
 
-                    int securityLevel = getUserSecurityLevel(principal);
+                    int securityLevel = getUserSecurityLevel((MyPrincipal) principal);
                     if (securityLevel >= requiredSecurityLevel) {
                         return ACCESS_GRANTED;
                     }
@@ -35,35 +38,22 @@ public class SecurityLevelVoter implements AccessDecisionVoter {
     }
 
     private int getRequiredSecurityLevel(ConfigAttribute attribute) {
-        String requiredSecurityLevelString = attribute.getAttribute().replaceFirst(getSecurityLevelPrefix(), "");
-        try {
-            return Integer.parseInt(requiredSecurityLevelString);
-        } catch (NumberFormatException e) {
-            return Integer.MAX_VALUE;
-        }
+        String requiredSecurityLevel = removeStart(attribute.getAttribute(), securityLevelPrefix);
+        return toInt(requiredSecurityLevel, Integer.MAX_VALUE);
     }
 
-    private int getUserSecurityLevel(Object principal) {
-        String securityLevelString = ((MyPrincipal) principal).getSecurityLevel();
-        try {
-            return Integer.parseInt(securityLevelString);
-        } catch (NumberFormatException e) {
-            return Integer.MIN_VALUE;
-        }
+    private int getUserSecurityLevel(MyPrincipal principal) {
+        return toInt(principal.getSecurityLevel(), Integer.MIN_VALUE);
     }
 
     @Override
     public boolean supports(ConfigAttribute attribute) {
-        return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(getSecurityLevelPrefix());
+        return (attribute.getAttribute() != null) && attribute.getAttribute().startsWith(securityLevelPrefix);
     }
 
     @Override
     public boolean supports(Class<?> clazz) {
         return true;
-    }
-
-    public String getSecurityLevelPrefix() {
-        return securityLevelPrefix;
     }
 
     public void setSecurityLevelPrefix(String securityLevelPrefix) {
